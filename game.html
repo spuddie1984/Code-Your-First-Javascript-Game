@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>My First Game</title>
+		
+		<style media="screen">
+			
+		</style>
+	</head>
+	<body>
+		<canvas id="gameCanvas" width="800" height="600"></canvas>
+	</body>
+	<script type="text/javascript">
+
+		const ONE_SECOND = 1000; 
+		const NET_WIDTH = 5;
+		const NET_LENGTH = 20;
+		const PADDLE_LENGTH = 100;
+		const PADDLE_WIDTH = 10;
+		const WINNING_SCORE = 5;
+
+		var canvas;
+		var canvasContext;
+
+		var ballX = 400;
+		var ballY = 300;
+		var ballSpeedX = 10;
+		var ballSpeedY = 10;
+		var paddle1Y = 250;
+		var paddle2Y = 250;
+		
+		var computerPaddleSpeed = 6;
+		var player1 = 0;
+		var player2 = 0;
+		var winningScreen = false;
+		var winningPlayer;
+		var startScreen = true;
+
+		window.onload = function () {
+			
+			canvas = document.getElementById('gameCanvas');	
+			canvasContext = canvas.getContext('2d');
+
+			canvasContext.font = "30px Arial";
+			// log the canvas height and width for future reference
+			console.log("canvas Width: " + canvas.width);
+			console.log("canvas Height: " + canvas.height);
+
+			// set the fps How many times a second the ballmovement 
+			var framesPerSecond = 30			
+
+			// get the game area width and length
+			let gameArea = document.getElementById("gameCanvas");
+			
+			// add listener to mouse movement and attach that to left paddle 	
+			gameArea.addEventListener('mousemove', function(evt) {
+				var mousePos = mouseMovement(evt);
+				paddle1Y = mousePos.y - (PADDLE_LENGTH / 2);				
+			});
+
+			gameArea.addEventListener('click', function(evt) {
+				if(startScreen){
+					startScreen = false;
+				}else if(winningScreen){
+					winningScreen = false;
+					playerReset();
+				}
+			});
+
+			setInterval(function() {
+				drawEverything();
+				
+				if(!winningScreen && !startScreen){
+					playerScore();
+					moveEverything();
+				}
+			}, ONE_SECOND/framesPerSecond);
+			
+		}
+
+		function computerMovement() {
+			var paddle2YCenter = paddle2Y + (PADDLE_LENGTH/2);
+			if(paddle2YCenter < ballY - 35) {
+				paddle2Y = paddle2Y + computerPaddleSpeed;
+			} else if(paddle2YCenter > ballY + 35) {
+				paddle2Y = paddle2Y - computerPaddleSpeed
+			}
+		}	
+		
+
+		function moveEverything() {
+
+			// AI left paddle movement
+			computerMovement();
+
+			// move the ball on the x-axis (left-right)
+			ballX = ballX - ballSpeedX;
+				
+			// move the ball on the y-axis (up-down)
+			ballY = ballY - ballSpeedY;
+			
+			// if the ball hits the bottom wall bounce off of it
+			if( ballY > canvas.height) {				
+				ballSpeedY = -ballSpeedY;
+			}
+
+			// if the ball hits the top wall bounce off of it
+			else if (ballY < canvas.height -canvas.height) {
+				ballSpeedY = -ballSpeedY;
+			}
+			
+			// if the ball hits the right paddle bounce off, else left player scores 1 point
+			if (ballX >= canvas.width) {
+				if ( ballY > paddle2Y && ballY < paddle2Y + PADDLE_LENGTH) {
+					ballSpeedX =  -ballSpeedX;
+				}else {
+					player1++;
+					// at 5 points player 1 wins
+					if(player1 >= 5){
+						playerWon('player1');
+					}
+					// reset ball to center court
+					reset();
+				}		
+			}
+			// if the ball hits the left paddle bounce off, else right player(computer AI) scores 1 point
+			if (ballX <= canvas.width - canvas.width) {
+				if ( ballY > paddle1Y && ballY < paddle1Y + PADDLE_LENGTH) {
+					ballSpeedX =  -ballSpeedX;
+					var deltaY = ballY - (paddle1Y+PADDLE_LENGTH/2);
+					ballSpeedY = deltaY * 0.35;
+				}else {
+					player2++;
+					// at 5 points player 2(computer AI) wins
+					if(player2 >= 5){
+						playerWon('player2');
+					}
+					// reset ball to center court
+					reset();
+				}
+			 }
+		} 
+		
+		// updated everytime the player scores a point
+		function playerScore() {
+			canvasContext.fillText('player1 ',100,40);
+			canvasContext.fillText('player2 ',550,40);
+			canvasContext.fillText(player1   ,150,80);
+			canvasContext.fillText(player2   ,600,80);
+
+		}
+
+		// main function
+		function drawEverything() {
+			if(startScreen){
+
+				canvasContext.fillStyle = "black";
+				canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+				canvasContext.fillStyle = "white";
+				canvasContext.font = "60px monospace";
+				canvasContext.fillText('The Tennis Game',125,300);
+				canvasContext.font = "20px monospace";
+				canvasContext.fillText( 'click the screen to start',250,400);
+
+
+			}else if(winningScreen){
+
+					canvasContext.fillStyle = "black";
+					canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+					canvasContext.fillStyle = "white";
+					canvasContext.font = "60px monospace";
+					canvasContext.fillText( winningPlayer + ' Won',200,300);
+					canvasContext.font = "20px monospace";
+					canvasContext.fillText( 'click the screen to try again',200,400);
+
+			}else{
+
+				// tennis court and color
+				canvasContext.fillStyle = "#40A14C";
+				canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+				
+				// white game net
+				gameNet();
+
+				// the tennis ball
+				canvasContext.beginPath();
+				canvasContext.arc(ballX,ballY,5,0, 2 * Math.PI, false);
+				canvasContext.fillStyle = "white";
+				canvasContext.fill();
+				
+				// left paddle
+				paddle(canvas.width - canvas.width, paddle1Y, PADDLE_WIDTH, PADDLE_LENGTH);
+
+				// right paddle
+				paddle(canvas.width - PADDLE_WIDTH, paddle2Y, PADDLE_WIDTH, PADDLE_LENGTH);
+				}
+		}
+
+		function playerWon(player){
+			winningScreen = true;
+			winningPlayer = player;
+		}
+
+		// get the mouse position on the document window write into a object literal
+		function mouseMovement(event) {
+			mouseX = event.clientX;
+			mouseY = event.clientY;
+			return {
+				x: mouseX,
+				y: mouseY
+			};
+		}
+		
+		// paddle positioning for both player and computer
+		function paddle(positionX, positionY, width, length) {
+			canvasContext.fillStyle = "white";
+			canvasContext.fillRect(positionX, positionY, width, length);
+		}
+		
+		// draw a white game net
+		function gameNet() {
+			canvasContext.fillStyle = "white";
+			for (var i = 10; i < canvas.height ; i+= 40) {
+					canvasContext.fillRect((canvas.width/2)-(NET_WIDTH/2), i, NET_WIDTH, NET_LENGTH);
+			}
+		}
+
+		// reset ball position to middle of canvas and reset ball direction and speed
+		function reset() {		
+			ballX = canvas.width / 2;
+			ballY = canvas.height / 2;
+			ballSpeedX = 10;
+		}
+
+		// reset player score
+		function playerReset(){
+			player1 = 0;
+			player2 = 0;
+		}
+	</script>
+</html>

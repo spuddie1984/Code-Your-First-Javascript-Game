@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>My First Game</title>
+		
+		<style media="screen">
+			
+		</style>
+	</head>
+	<body>
+		<audio id="my-audio">
+			<source src="./strike.mp3" type="audio/mpeg">
+		</audio>
+		<canvas id="gameCanvas" width="800" height="600"></canvas>
+	</body>
+	<script type="text/javascript">
+		var audio = document.getElementById("my-audio");
+		var canvas;
+		var canvasContext;
+		const ONE_SECOND = 1000; 
+		const NET_WIDTH = 5;
+		const NET_LENGTH = 20;
+		const PADDLE_LENGTH = 100;
+		const PADDLE_WIDTH = 10;
+		var ballX = 50;
+		var ballY = 50;
+		var ballSpeedX = 10;
+		var ballSpeedY = 10;
+		var paddle1Y = 200;
+		var paddle2Y = 400;
+		var mouseX;
+		var mouseY;
+
+function mouseMovement(event) {
+			mouseX = event.clientX;
+			mouseY = event.clientY;
+			return {
+				x: mouseX,
+				y: mouseY
+			};
+		}
+
+		window.onload = function () {
+			canvas = document.getElementById('gameCanvas');
+			canvasContext = canvas.getContext('2d');
+			
+			
+
+			// log the canvas height and width for future reference
+			console.log("canvas Width: " + canvas.width);
+			console.log("canvas Height: " + canvas.height);
+
+			let gameArea = document.getElementById("gameCanvas");
+					gameArea.addEventListener('mousemove', function(evt) {
+						var mousePos = mouseMovement(evt);
+						console.log(mousePos);
+						drawEverything(mousePos.x, mousePos.y);
+					}
+
+					);
+
+			// set the fps How many times a second the ballmovement 
+		
+		
+		
+}
+
+		
+
+		function drawEverything(x,y) {
+
+			canvasContext.fillStyle = "#40A14C";
+			canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+			canvasContext.beginPath();
+			canvasContext.arc(x,y,5,0, 2 * Math.PI, false);
+			canvasContext.fillStyle = "white";
+			canvasContext.fill();
+		}
+	</script>
+</html>
