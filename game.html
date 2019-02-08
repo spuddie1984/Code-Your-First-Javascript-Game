@@ -47,7 +47,7 @@
 			console.log("canvas Width: " + canvas.width);
 			console.log("canvas Height: " + canvas.height);
 
-			// set the fps How many times a second the ballmovement 
+			// set the frames per second 
 			var framesPerSecond = 30			
 
 			// get the game area width and length
@@ -59,6 +59,7 @@
 				paddle1Y = mousePos.y - (PADDLE_LENGTH / 2);				
 			});
 
+
 			gameArea.addEventListener('click', function(evt) {
 				if(startScreen){
 					startScreen = false;
@@ -68,22 +69,28 @@
 				}
 			});
 
+			// refresh the canvas depending on the set fps 
 			setInterval(function() {
+				
 				drawEverything();
 				
+				// only display while game is being played
 				if(!winningScreen && !startScreen){
 					playerScore();
 					moveEverything();
 				}
-			}, ONE_SECOND/framesPerSecond);
-			
+			}, ONE_SECOND/framesPerSecond);			
 		}
 
 		function computerMovement() {
+
+			// get AI paddle center position
 			var paddle2YCenter = paddle2Y + (PADDLE_LENGTH/2);
+			
+			// Computer paddle follows ball movement
 			if(paddle2YCenter < ballY - 35) {
 				paddle2Y = paddle2Y + computerPaddleSpeed;
-			} else if(paddle2YCenter > ballY + 35) {
+			}else if(paddle2YCenter > ballY + 35) {
 				paddle2Y = paddle2Y - computerPaddleSpeed
 			}
 		}	
@@ -155,6 +162,7 @@
 		function drawEverything() {
 			if(startScreen){
 
+				// start screen 
 				canvasContext.fillStyle = "black";
 				canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 				canvasContext.fillStyle = "white";
@@ -194,7 +202,7 @@
 
 				// right paddle
 				paddle(canvas.width - PADDLE_WIDTH, paddle2Y, PADDLE_WIDTH, PADDLE_LENGTH);
-				}
+	   		}
 		}
 
 		function playerWon(player){
@@ -222,7 +230,7 @@
 		function gameNet() {
 			canvasContext.fillStyle = "white";
 			for (var i = 10; i < canvas.height ; i+= 40) {
-					canvasContext.fillRect((canvas.width/2)-(NET_WIDTH/2), i, NET_WIDTH, NET_LENGTH);
+				canvasContext.fillRect((canvas.width/2)-(NET_WIDTH/2), i, NET_WIDTH, NET_LENGTH);
 			}
 		}
 
